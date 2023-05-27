@@ -23,6 +23,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if error = user.Prepare(); error != nil {
+		responses.Error(w, http.StatusBadRequest, error)
+		return
+	}
+
 	database, error := db.Connect()
 	if error != nil {
 		responses.Error(w, http.StatusInternalServerError, error)
