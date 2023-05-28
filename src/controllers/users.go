@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +47,23 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func ReadUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Reading all users..."))
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+
+	database, error := db.Connect()
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+	defer database.Close()
+
+	repository := repositories.NewUsersRepository(database)
+	users, error := repository.Search(nameOrNick)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, users)
 }
 
 func ReadUser(w http.ResponseWriter, r *http.Request) {
