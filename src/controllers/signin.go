@@ -44,6 +44,10 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := authentication.CreateToken(dbSavedUser.ID)
+	token, error := authentication.CreateToken(dbSavedUser.ID)
+	if error != nil {
+		responses.Error(w, http.StatusInternalServerError, error)
+		return
+	}
 	fmt.Println(token)
 }
