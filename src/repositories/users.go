@@ -142,3 +142,17 @@ func (u users) SearchByEmail(email string) (models.User, error) {
 
 	return user, nil
  }
+
+func (u users) Follow(userToFollowId, followerId uint64) error {
+	statement, error := u.db.Prepare("insert ignore into followers (user_id, follower_id) values (?, ?)")
+	if error !=nil {
+		return error
+	}
+	defer statement.Close()
+
+	if _, error = statement.Exec(userToFollowId, followerId); error != nil {
+		return error
+	}
+
+	return nil
+}
